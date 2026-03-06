@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daladan Intelligent Hub</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<!-- Added Leaflet CSS for the map -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<style>
+:root {
+--agro-green: #064E3B;
+--harvest-amber: #D97706;
+--cotton-white: #F8FAFC;
+--slate-gray: #1E293B;
+}
+body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+h1, h2, h3, h4 { font-family: 'Outfit', sans-serif; }
+.bg-agro { background-color: var(--agro-green); }
+.text-agro { color: var(--agro-green); }
+.bg-amber { background-color: var(--harvest-amber); }
+.text-amber { color: var(--harvest-amber); }
+.sun-proof-shadow { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.1); }
+.ai-loader {
+border: 3px solid #f3f3f3;
+border-top: 3px solid var(--harvest-amber);
+border-radius: 50%;
+width: 16px; height: 16px;
+animation: spin 1s linear infinite;
+display: inline-block;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+.chat-bubble-user { background-color: var(--harvest-amber); color: white; border-radius: 1.2rem 1.2rem 0 1.2rem; }
+.chat-bubble-contact { background-color: white; border-radius: 1.2rem 1.2rem 1.2rem 0; border: 1px solid #e2e8f0; }
+.greedy-bar { transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
+/* Leaflet Map overrides for styling */
+.leaflet-control-attribution { display: none; }
+</style>
+</head>
+<body class="min-h-screen pb-20">
+
+<!-- Navigation Switcher -->
+<div class="bg-white border-b sticky top-0 z-50 p-4 sun-proof-shadow">
+<div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+<div class="flex items-center gap-2">
+<span class="bg-agro text-white font-bold px-3 py-1 rounded text-xl">Daladan</span>
+<span class="hidden sm:inline text-slate-400">| Intelligent Hub</span>
+</div>
+<div class="flex bg-slate-100 p-1 rounded-xl gap-1">
+<button onclick="switchView('producer')" id="btn-producer" class="view-btn px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-bold transition-all bg-white shadow-sm text-agro">Producer</button>
+<button onclick="switchView('driver')" id="btn-driver" class="view-btn px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-bold transition-all text-slate-500">Driver</button>
+<button onclick="switchView('retailer')" id="btn-retailer" class="view-btn px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-bold transition-all text-slate-500">Retailer</button>
+<button onclick="switchView('messages')" id="btn-messages" class="view-btn px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-bold transition-all text-slate-500">
+<i class="fa-solid fa-message"></i>
+</button>
+</div>
+</div>
+</div>
+
+<!-- VIEW: PRODUCER -->
+<main id="view-producer" class="view-content max-w-4xl mx-auto px-4 mt-8">
+<div class="flex justify-between items-center mb-8">
+<div>
+<h1 class="text-3xl font-bold text-agro">Mening Maydonim</h1>
+<p class="text-slate-500">Welcome, Azamat Aka</p>
+</div>
+<div class="hidden sm:flex gap-3 text-right">
+<div>
+<p class="text-sm font-bold uppercase text-slate-400">Total Revenue</p>
+<p class="text-2xl font-bold text-agro">12,450,000 UZS</p>
+</div>
+</div>
+</div>
+
+<div class="mb-10">
+<h2 class="text-xl font-bold mb-4">Bozor Talabi (Market Needs)</h2>
+<div class="flex overflow-x-auto pb-4 gap-4">
+<div class="flex-shrink-0 w-72 bg-amber/5 border border-amber-200 p-5 rounded-2xl sun-proof-shadow">
+<h3 class="font-bold text-lg mb-1 text-slate-800">2 Tons Carrots</h3>
+<p class="text-xs text-slate-500 mb-4">Buyer: Korzinka (Tashkent)</p>
+<div class="flex gap-2">
+<button class="flex-1 bg-amber text-white py-2 rounded-xl text-xs font-bold shadow-sm">Offer Cargo</button>
+<button onclick="openChat('Korzinka')" class="p-2 bg-white border border-amber-200 text-amber rounded-xl hover:bg-amber hover:text-white transition"><i class="fa-solid fa-message"></i></button>
+</div>
+</div>
+<div class="flex-shrink-0 w-72 bg-white border border-slate-200 p-5 rounded-2xl sun-proof-shadow">
+<h3 class="font-bold text-lg mb-1 text-slate-800">500kg Honey</h3>
+<p class="text-xs text-slate-500 mb-4">Buyer: Chorsu Bazaar Distributor</p>
+<div class="flex gap-2">
+<button class="flex-1 bg-agro text-white py-2 rounded-xl text-xs font-bold shadow-sm">Offer Cargo</button>
+<button onclick="openChat('Chorsu')" class="p-2 bg-white border border-slate-200 text-slate-400 hover:text-amber rounded-xl transition"><i class="fa-solid fa-message"></i></button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Inventory Snapshots -->
+<div class="flex justify-between items-center mb-4">
+<h2 class="text-xl font-bold">Mening Mahsulotlarim (Inventory)</h2>
+<button onclick="generateDescription('Golden Apples')" class="text-xs font-bold text-amber bg-amber/10 hover:bg-amber/20 transition px-3 py-2 rounded-lg">✨ AI Optimize</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+<div class="bg-white p-6 rounded-2xl sun-proof-shadow border-l-8 border-agro">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="text-2xl font-bold">Golden Apples</h3>
+<p id="desc-apples" class="text-slate-500 text-sm mt-1 italic">Classic sweet harvest from Namangan.</p>
+</div>
+<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full font-bold text-sm">Active</span>
+</div>
+<div class="mt-6 flex justify-between items-end">
+<div>
+<p class="text-3xl font-bold text-agro">1,200 kg</p>
+<p class="text-sm text-slate-400">Current Stock</p>
+</div>
+<button class="text-agro font-bold border-b-2 border-agro text-sm">Update</button>
+</div>
+</div>
+<!-- Empty Stock Card -->
+<div class="bg-white p-6 rounded-2xl sun-proof-shadow border-l-8 border-slate-300">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="text-2xl font-bold">Tomatoes</h3>
+<p class="text-slate-500 text-sm mt-1 italic">Awaiting harvest details...</p>
+</div>
+<span class="bg-slate-100 text-slate-500 px-3 py-1 rounded-full font-bold text-sm">Empty</span>
+</div>
+<div class="mt-6">
+<button class="w-full py-3 bg-slate-100 text-slate-600 hover:bg-slate-200 transition rounded-xl font-bold">+ Restock</button>
+</div>
+</div>
+</div>
+
+<!-- Status Progress -->
+<h2 class="text-xl font-bold mb-4">Current Shipments</h2>
+<div class="bg-white p-6 rounded-2xl sun-proof-shadow mb-8">
+<div class="flex justify-between mb-6">
+<div>
+<h4 class="font-bold">Order #D-9982</h4>
+<p class="text-sm text-slate-500">To: Korzinka - Tashkent</p>
+</div>
+<span class="text-amber font-bold">In Transit</span>
+</div>
+<div class="relative pt-1">
+<div class="flex mb-2 items-center justify-between text-[10px] sm:text-xs font-bold uppercase">
+<div class="text-agro">Agreed</div>
+<div class="text-agro">Assigned</div>
+<div class="text-amber">Transit</div>
+<div class="text-slate-300">Paid</div>
+</div>
+<div class="overflow-hidden h-3 mb-4 text-xs flex rounded-full bg-slate-100">
+<div style="width:75%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-agro transition-all"></div>
+</div>
+</div>
+</div>
+</main>
+
+<!-- VIEW: DRIVER (ENHANCED WITH GREEDY ALGO & MULTI-PARTY CONTACT) -->
+<main id="view-driver" class="view-content hidden max-w-4xl mx-auto px-4 mt-8">
+<div class="mb-6 flex justify-between items-center">
+<h1 class="text-3xl font-bold text-agro">Active Route</h1>
+<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+<span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> In Motion
+</span>
+</div>
+
+<!-- Real-Time Interactive Map -->
+<div class="relative w-full h-[400px] mb-8 rounded-3xl overflow-hidden sun-proof-shadow border border-slate-200">
+<!-- Map Container -->
+<div id="live-map" class="absolute inset-0 z-0 bg-slate-100"></div>
+<!-- AI Route Intelligence Widget (Overlaid on Map) -->
+<div class="absolute bottom-4 left-4 right-4 md:left-auto md:w-80 md:right-8 bg-white p-4 rounded-2xl sun-proof-shadow z-10 border border-slate-100">
+<div class="flex justify-between items-center mb-2">
+<span class="font-bold text-slate-500 uppercase text-xs tracking-widest">Route Intelligence ✨</span>
+<button onclick="getAdvisorAdvice()" class="text-[10px] font-bold text-amber hover:underline">Get AI Advice</button>
+</div>
+<div id="ai-advice-box" class="text-[11px] text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100 leading-tight">
+Accepting the 200kg Apples at Uychi increases trip revenue by 12% with only a 3km detour.
+</div>
+</div>
+</div>
+
+<!-- Greedy Optimizer Visual -->
+<div class="bg-white p-6 rounded-3xl sun-proof-shadow mb-8 border border-slate-100">
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-bold flex items-center gap-2">
+<i class="fa-solid fa-microchip text-amber"></i> Intelligent Pooling Engine
+</h3>
+<button onclick="explainGreedyAlgo()" class="text-[10px] font-bold text-agro uppercase hover:underline">How this saves money?</button>
+</div>
+<div class="space-y-6">
+<!-- Capacity Visualizer -->
+<div>
+<div class="flex justify-between text-xs font-bold mb-2 uppercase text-slate-400">
+<span>Truck Utilization (Greedy Stack)</span>
+<span id="capacity-text">85% Full</span>
+</div>
+<div class="h-6 w-full bg-slate-100 rounded-lg overflow-hidden flex">
+<div class="greedy-bar h-full bg-agro border-r border-white/20" style="width: 40%"></div>
+<div class="greedy-bar h-full bg-teal-600 border-r border-white/20" style="width: 30%"></div>
+<div class="greedy-bar h-full bg-emerald-500" style="width: 15%"></div>
+</div>
+</div>
+
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+<p class="text-[10px] text-slate-400 uppercase font-bold">Cost Benefit</p>
+<p class="text-xl font-bold text-green-600">-32% Price</p>
+</div>
+<div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+<p class="text-[10px] text-slate-400 uppercase font-bold">Detour Penalty</p>
+<p class="text-xl font-bold text-amber">4.2 km</p>
+</div>
+</div>
+<p id="greedy-explanation" class="text-xs text-slate-500 italic"></p>
+</div>
+</div>
+
+<!-- Multi-Order Active List -->
+<h2 class="text-xl font-bold mb-4">Current Load (3 Orders)</h2>
+<div class="space-y-4">
+<!-- Order 1 -->
+<div class="bg-white p-5 rounded-2xl sun-proof-shadow border border-slate-100">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h4 class="font-bold">Order #D-901: 500kg Apples</h4>
+<p class="text-xs text-slate-400 italic">From: Azamat Aka (Seller)</p>
+</div>
+<div class="flex gap-2">
+<button onclick="openChat('Azamat')" class="w-10 h-10 rounded-xl bg-slate-100 text-agro flex items-center justify-center" title="Message Seller"><i class="fa-solid fa-wheat-awn"></i></button>
+<button onclick="openChat('Retailer 1')" class="w-10 h-10 rounded-xl bg-slate-100 text-amber flex items-center justify-center" title="Message Buyer"><i class="fa-solid fa-shop"></i></button>
+</div>
+</div>
+<div class="flex items-center gap-2 text-[10px] font-bold text-agro bg-green-50 p-2 rounded-lg">
+<i class="fa-solid fa-location-dot"></i> Drop-off: Tashkent Korzinka
+</div>
+</div>
+
+<!-- Order 2 (Greedy Pickup) -->
+<div class="bg-white p-5 rounded-2xl sun-proof-shadow border-l-4 border-amber-400">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h4 class="font-bold">Order #D-905: 200kg Onions</h4>
+<p class="text-xs text-slate-400 italic">From: Uychi Farm (Seller)</p>
+</div>
+<div class="flex gap-2">
+<button onclick="openChat('Uychi Seller')" class="w-10 h-10 rounded-xl bg-slate-100 text-agro flex items-center justify-center"><i class="fa-solid fa-wheat-awn"></i></button>
+<button onclick="openChat('Bazaar Buyer')" class="w-10 h-10 rounded-xl bg-slate-100 text-amber flex items-center justify-center"><i class="fa-solid fa-shop"></i></button>
+</div>
+</div>
+<div class="flex items-center gap-2 text-[10px] font-bold text-agro bg-green-50 p-2 rounded-lg">
+<i class="fa-solid fa-location-dot"></i> Drop-off: Chorsu Bazaar
+</div>
+</div>
+</div>
+</main>
+
+<!-- VIEW: MESSAGES (MULTI-PARTY DEAL CHAT) -->
+<main id="view-messages" class="view-content hidden max-w-5xl mx-auto h-[calc(100vh-140px)] flex flex-col sm:flex-row gap-4 px-4 mt-6">
+<!-- Chat List -->
+<div class="w-full sm:w-80 bg-white rounded-3xl sun-proof-shadow flex flex-col overflow-hidden">
+<div class="p-6 border-b"><h2 class="text-xl font-bold">Deal Messages</h2></div>
+<div class="flex-grow overflow-y-auto">
+<div class="p-4 border-l-4 border-amber bg-orange-50 flex gap-3 cursor-pointer">
+<div class="w-12 h-12 rounded-full bg-amber text-white flex items-center justify-center font-bold">3</div>
+<div class="flex-grow">
+<div class="flex justify-between"><h4 class="font-bold text-sm">Deal Group #901</h4><span class="text-[10px] text-slate-400">12:45</span></div>
+<p class="text-xs text-slate-500">Seller, Buyer, Driver</p>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Chat Area -->
+<div class="flex-grow bg-white rounded-3xl sun-proof-shadow flex flex-col overflow-hidden relative">
+<div class="p-4 border-b flex justify-between items-center">
+<div class="flex items-center gap-3">
+<div class="flex -space-x-3">
+<div class="w-8 h-8 rounded-full border-2 border-white bg-agro text-[8px] flex items-center justify-center text-white font-bold">S</div>
+<div class="w-8 h-8 rounded-full border-2 border-white bg-amber text-[8px] flex items-center justify-center text-white font-bold">B</div>
+<div class="w-8 h-8 rounded-full border-2 border-white bg-slate-800 text-[8px] flex items-center justify-center text-white font-bold">D</div>
+</div>
+<div>
+<h4 class="font-bold text-sm">Order Group #901</h4>
+<p class="text-[8px] text-slate-400 uppercase tracking-widest">3 Participants</p>
+</div>
+</div>
+<button onclick="summarizeChat()" class="text-[10px] font-bold text-amber border border-amber-200 px-3 py-1 rounded-full">✨ AI Summary</button>
+</div>
+
+<div class="flex-grow p-6 overflow-y-auto bg-slate-50 space-y-4 flex flex-col" id="chat-messages-container">
+<div class="chat-bubble-contact p-3 max-w-[80%] text-[11px] self-start">
+<span class="block font-bold text-agro text-[9px] mb-1">Seller (Azamat Aka)</span>
+Apples are loaded. Ahmad (Driver), be careful with the crates.
+</div>
+<div class="chat-bubble-contact p-3 max-w-[80%] text-[11px] self-start bg-slate-100">
+<span class="block font-bold text-slate-800 text-[9px] mb-1">Driver (Ahmad)</span>
+Received. Korzinka (Buyer), what gate should I use at the warehouse?
+</div>
+<div class="chat-bubble-contact p-3 max-w-[80%] text-[11px] self-start border-amber-200">
+<span class="block font-bold text-amber text-[9px] mb-1">Buyer (Korzinka)</span>
+Gate 4, Ahmad. Let us know when you cross the ring road.
+</div>
+</div>
+
+<div class="p-4 border-t bg-white flex gap-2">
+<input type="text" placeholder="Message group..." class="flex-grow bg-slate-50 px-4 py-2 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-agro">
+<button class="w-10 h-10 rounded-xl bg-agro text-white flex items-center justify-center"><i class="fa-solid fa-paper-plane"></i></button>
+</div>
+</div>
+</main>
+
+<!-- VIEW: RETAILER (MARKET + POST NEEDS) -->
+<main id="view-retailer" class="view-content hidden max-w-7xl mx-auto px-4 mt-8">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+<div>
+<h1 class="text-3xl font-bold text-agro">Retailer Hub</h1>
+<div class="bg-white p-10 rounded-[3rem] sun-proof-shadow border-2 border-dashed border-slate-200">
+<i class="fa-solid fa-clipboard-list text-5xl text-slate-300 mb-6"></i>
+<h3 class="text-2xl font-bold mb-4">Post a Bulk Need</h3>
+<p class="text-slate-500 mb-8 max-w-sm mx-auto">List exactly what produce you need. Local producers will see this on their 'Bozor Talabi' board.</p>
+<button class="bg-amber text-white px-10 py-4 rounded-2xl font-bold shadow-lg hover:bg-amber/90 transition">+ Create New Request</button>
+</div>
+
+<!-- Search and Filters -->
+<div class="bg-white p-4 rounded-2xl sun-proof-shadow mb-8 flex flex-col sm:flex-row gap-4">
+<div class="relative flex-grow">
+<i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+<input type="text" placeholder="Search fresh produce directly from farms..." class="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-100 focus:outline-none focus:ring-2 focus:ring-agro text-sm">
+</div>
+<button class="bg-slate-100 text-slate-600 px-6 py-3 rounded-xl font-bold text-sm hover:bg-slate-200 transition">
+<i class="fa-solid fa-filter mr-2"></i> Filter
+</button>
+</div>
+
+<!-- Marketplace Grid -->
+<h2 class="text-xl font-bold mb-4">Live Market (Direct from Field)</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Product Card 1 -->
+<div class="bg-white rounded-3xl overflow-hidden sun-proof-shadow">
+<div class="h-48 bg-slate-200 relative">
+<img src="https://images.unsplash.com/photo-1560806887-1e4cd0b6fac6? 
+create this 
