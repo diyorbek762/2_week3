@@ -1,5 +1,5 @@
 class TicketBooking:
-    def __init__(self, event_name, ticket_price, seat_count):
+    def __init__(self, event_name: str, ticket_price: float, seat_count: int):
         self.event_name = event_name
         self.ticket_price = ticket_price
         self.seat_count = seat_count
